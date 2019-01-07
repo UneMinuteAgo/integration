@@ -12,8 +12,8 @@
 // @require      https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js
 // @require      http://file.neoblaster.fr/han.form.repro.js
 // @require      http://img.neoblaster.fr/han.form.index6.js
-// @require      https://rawcdn.githack.com/neooblaster/hackathon/648e0a4199559d39fffdb14429336bf28df45676/han.dbox.js
-// @resource     https://rawcdn.githack.com/neooblaster/hackathon/edd170a5b017fcf2690bb250ab834fece997634d/han.dbox.css
+// @require      https://rawcdn.githack.com/UneMinuteAgo/lib/cdb7b1225a8420d8d9388dcff596a207f0d585e9/src/dialogBox.js
+// @resource     https://rawcdn.githack.com/UneMinuteAgo/lib/cdb7b1225a8420d8d9388dcff596a207f0d585e9/src/dialogBox.css
 // @require      https://unpkg.com/leaflet@1.3.4/dist/leaflet.js
 // ==/UserScript==
 
@@ -777,7 +777,7 @@ function SIVEnhance(){
 
 
 document.head.appendChild(new HTML().compose({
-    name: "link", attributes: {href: "https://rawcdn.githack.com/neooblaster/hackathon/edd170a5b017fcf2690bb250ab834fece997634d/han.dbox.css", type: "text/css", rel: "stylesheet"}
+    name: "link", attributes: {href: "https://rawcdn.githack.com/UneMinuteAgo/lib/cdb7b1225a8420d8d9388dcff596a207f0d585e9/src/dialogBox.css", type: "text/css", rel: "stylesheet"}
 }))
 document.head.appendChild(new HTML().compose({
     name: "link", attributes: {href: "https://unpkg.com/leaflet@1.3.4/dist/leaflet.css", type: "text/css", rel: "stylesheet"}
