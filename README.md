@@ -1,19 +1,19 @@
 # Intégration à la SIV des Archives Nationales
 
 Ce **User Script** permet de s'intégrer localement, côté client,
-pour améliorer et ajouter les fonctionnalités de la **Salle des Inventaires Virtuelle**.
+pour améliorer et ajouter les fonctionnalités de la **SIV** (Salle des Inventaires Virtuelle).
 
 **Important :** Ce script n'affecte d'aucune manière les fichiers sources du
 site de la **SIV**.
 
 
-## Installation d'un gestionnaire de User Script
+## Installation d'un gestionnaire de type "User Script"
 
-Il est possible d'intervenir dans une page sans utilitaires,
-cependant la tâche n'est'pas aisée.
+Il est possible d'intervenir dans une page sans utilitaire,
+cependant la tâche n'est pas aisée.
 L'installation d'un utilitaire permet d'automatiser l'exécution 
 du script dans un contexte particulier, de charger des ressources
-de manière autonomme, de déclencher le script sous certaines conditions
+de manière autonome, de déclencher le script sous certaines conditions
 (une fois le document chargé (...)) et plus encore.
 
 
@@ -30,9 +30,7 @@ Utilisez le lien suivant pour vous rendre directement sur le site :
 
 ### Installation de Greasemonkey sous Mozilla Firefox
 
-
-
-
+--TODO--
 
 
 ## Installation du Script
