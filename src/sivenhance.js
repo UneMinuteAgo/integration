@@ -14,7 +14,10 @@
 // @require      http://img.neoblaster.fr/han.form.index6.js
 // @require      https://rawcdn.githack.com/UneMinuteAgo/lib/cdb7b1225a8420d8d9388dcff596a207f0d585e9/src/dialogBox.js
 // @resource     https://rawcdn.githack.com/UneMinuteAgo/lib/cdb7b1225a8420d8d9388dcff596a207f0d585e9/src/dialogBox.css
+// @resource     https://rawcdn.githack.com/UneMinuteAgo/lib/cdb7b1225a8420d8d9388dcff596a207f0d585e9/src/dialogBox.css
 // @require      https://unpkg.com/leaflet@1.3.4/dist/leaflet.js
+// @require      https://raw.githack.com/UneMinuteAgo/stats/master/site/lib/js/Pie.js
+// @require      https://rawcdn.githack.com/neooblaster/xhrQuery/fca64541aa77d64ba726db83e7fb2dd6fa218e30/releases/v1.4.0/xhrQuery.min.js
 // ==/UserScript==
 
 var chartClients = {
@@ -90,7 +93,16 @@ var chartClients = {
         {"name": "Chemin, Jean", "actes": 4},
         {"name": "David, Adrienne", "actes": 4}
     ]
-}
+};
+
+var xml = {
+    "ROYER_clause ii": "FRAN_IR_041106.xml",
+    "FOURCHYandré": "FRAN_IR_042380.xml",
+    "DESCHAMBEAXjean-joseph": "FRAN_IR_042517.xml",
+    "LE CLERCmarc-joseph": "FRAN_IR_042602.xml",
+    "GIRET DE VALVILLEandré-nicolas": "FRAN_IR_0426811.xml",
+    "MILLON-DAILLYaugustin": "FRAN_IR_043245.xml"
+};
 
 var umapURL = {
     "FOURCHYandré": "https://umap.openstreetmap.fr/fr/map/parisnotaires_etude-lix-_-notaire-andre-fourchy_273603?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&allowEdit=false&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=undefined&captionBar=false%22%3E%3C/iframe%3E%3Cp#13/48.8648/2.3281",
@@ -100,7 +112,7 @@ var umapURL = {
     "MILLON-DAILLYaugustin": "https://umap.openstreetmap.fr/fr/map/parisnotaires_etude-lix-_-notaire-andre-fourchy_273603?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&allowEdit=false&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=undefined&captionBar=false%22%3E%3C/iframe%3E%3Cp#13/48.8648/2.3281",
     "FOURCHYandré": "https://umap.openstreetmap.fr/fr/map/parisnotaires_etude-lix-_-notaire-andre-fourchy_273603?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&allowEdit=false&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=undefined&captionBar=false%22%3E%3C/iframe%3E%3Cp#13/48.8648/2.3281",
     "ROYER_clause ii": "https://umap.openstreetmap.fr/fr/map/parisnotaires_etude-lix-_-notaire-andre-fourchy_273603?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&allowEdit=false&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=undefined&captionBar=false%22%3E%3C/iframe%3E%3Cp#13/48.8648/2.3281"
-}
+};
 
 var cotes = [
     {"etude": "I", "notaire": "ROYER, Claude II", "startYear": 1709, "endYear": 1709, "startMonth": 1, "endMonth": 6, "cote": "MC/ET/I/236", "type": "Minute"},
@@ -274,10 +286,11 @@ function SIVEnhance(){
 
     self._bridged = false;
     //self._data = data;
-
     self.d3 = d3;
     self.dialogBox = dialogBox;
     self.html = HTML;
+    self.pie = PIE;
+    self.xhrQuery = xhrQuery;
     self._selectors = {
         viewer: "#conteneurVisionneuse"
     };
@@ -301,7 +314,7 @@ function SIVEnhance(){
         formRepro: {
             pathname: "/siv/accueil/monEspace.action"
         }
-    }
+    };
 
     self.build = function(){
         return {
@@ -545,8 +558,42 @@ function SIVEnhance(){
             // Row 1
             self._HTMLElement.sectionsGroups.stats.querySelector('.irAssocies_fieldset').appendChild(new HTML().compose({
                 classList: ['statRow'], children: [
-                    {classList: ['chartBlock'], children:[{name: 'img', attributes:{src: "http://img.neoblaster.fr/charts/FOURCHY_andr%C3%A9_types_v1.png"}}]},
-                    {classList: ['chartBlock'], children:[{name: 'img', attributes:{src: "http://img.neoblaster.fr/charts/FOURCHY_andr%C3%A9_occupations_v1.png"}}]}
+                    // {classList: ['chartBlock'], children:[{name: 'img', attributes:{src: "http://img.neoblaster.fr/charts/FOURCHY_andr%C3%A9_types_v1.png"}}]},
+                    // {classList: ['chartBlock'], children:[{name: 'img', attributes:{src: "http://img.neoblaster.fr/charts/FOURCHY_andr%C3%A9_occupations_v1.png"}}]}
+                    {
+                        classList: ['chartBlock'],
+                        functions: [{
+                            function: function(){
+                                // this = currentElement
+                                // self = SIVEnhance
+                                new self.xhrQuery().target("https://hackhan.neoblaster.fr/lib/iface/getStats.php").values(
+                                    "file=" + xml[key],
+                                    "data=controlaccess:occupation",
+                                    "nbResultValue=" + 10
+                                ).callbacks(function(e) {
+                                    var dim = (this.parentNode.offsetWidth / 2) - 10;
+                                    self.pie.target(this).size(dim, dim).make(JSON.parse(e), function(d){return d.value;})
+                                }.bind(this)).send();
+                            }
+                        }]
+                    },
+                    {
+                        classList: ['chartBlock'],
+                        functions: [{
+                            function: function(){
+                                // this = currentElement
+                                // self = SIVEnhance
+                                new self.xhrQuery().target("https://hackhan.neoblaster.fr/lib/iface/getStats.php").values(
+                                    "file=" + xml[key],
+                                    "data=controlaccess:genreform",
+                                    "nbResultValue=" + 10
+                                ).callbacks(function(e) {
+                                    var dim = (this.parentNode.offsetWidth / 2) - 10;
+                                    self.pie.target(this).size(dim, dim).make(JSON.parse(e), function(d){return d.value;})
+                                }.bind(this)).send();
+                            }
+                        }]
+                    }
                 ]
             }));
             // Row 2
@@ -760,7 +807,7 @@ function SIVEnhance(){
             SIVENHANCE = self;
         };
         return this;
-    }
+    };
 
     self.init = function(){
         self._HTMLElement.viewer = document.querySelector(self._selectors.viewer);
@@ -778,10 +825,10 @@ function SIVEnhance(){
 
 document.head.appendChild(new HTML().compose({
     name: "link", attributes: {href: "https://rawcdn.githack.com/UneMinuteAgo/lib/cdb7b1225a8420d8d9388dcff596a207f0d585e9/src/dialogBox.css", type: "text/css", rel: "stylesheet"}
-}))
+}));
 document.head.appendChild(new HTML().compose({
     name: "link", attributes: {href: "https://unpkg.com/leaflet@1.3.4/dist/leaflet.css", type: "text/css", rel: "stylesheet"}
-}))
+}));
 
 new SIVEnhance().init();
 
