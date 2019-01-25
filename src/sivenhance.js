@@ -8,16 +8,15 @@
 // @grant        none
 // @run-at       document-end
 // @require      https://rawcdn.githack.com/neooblaster/HTML/aa9263b08705a9676416f2ba64b474daa3a62945/release/v1.4.0/HTML.min.js
-// @require      https://rawcdn.githack.com/neooblaster/HTML/aa9263b08705a9676416f2ba64b474daa3a62945/release/v1.4.0/HTML.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js
 // @require      http://file.neoblaster.fr/han.form.repro.js
 // @require      http://img.neoblaster.fr/han.form.index6.js
 // @require      https://rawcdn.githack.com/UneMinuteAgo/lib/cdb7b1225a8420d8d9388dcff596a207f0d585e9/src/dialogBox.js
 // @resource     https://rawcdn.githack.com/UneMinuteAgo/lib/cdb7b1225a8420d8d9388dcff596a207f0d585e9/src/dialogBox.css
-// @resource     https://rawcdn.githack.com/UneMinuteAgo/lib/cdb7b1225a8420d8d9388dcff596a207f0d585e9/src/dialogBox.css
-// @require      https://unpkg.com/leaflet@1.3.4/dist/leaflet.js
+// @require      https://unpkg.com/leaflet@1.0.3/dist/leaflet.js
 // @require      https://raw.githack.com/UneMinuteAgo/stats/master/site/lib/js/Pie.js
 // @require      https://rawcdn.githack.com/neooblaster/xhrQuery/fca64541aa77d64ba726db83e7fb2dd6fa218e30/releases/v1.4.0/xhrQuery.min.js
+// @require      https://rawcdn.githack.com/UneMinuteAgo/maps/f76b549921205938cd0732cdf5bfad4b0967cdb5/Leaflet_with_GEOJSON/www/lib/js/Map.js
 // ==/UserScript==
 
 var chartClients = {
@@ -33,7 +32,7 @@ var chartClients = {
         {"name": "Villaume, Joseph Jean-Baptiste", "actes": 11},
         {"name": "Bizard, Jean-Baptiste Théophile", "actes": 10}
     ],
-    "DESCHAMBEAXjean-joseph": [
+    "DESCHAMBEAUXjean-joseph": [
         {"name": "Mottedescombes, Jean Louis", "actes": 5},
         {"name": "Demarandel, François Gabriel", "actes": 3},
         {"name": "Amiot, René", "actes": 2},
@@ -81,7 +80,7 @@ var chartClients = {
         {"name": "Maillebois, Yves Marie Desmarets de", "actes": 10},
         {"name": "Hocquet de Saint-Léger, Laurent", "actes": 8}
     ],
-    "ROYER_clause ii": [
+    "ROYERclaude ii": [
         {"name": "Bompas, Jacques", "actes": 9},
         {"name": "Vouges, André de", "actes": 7},
         {"name": "Hainque, Nicolas", "actes": 6},
@@ -96,11 +95,11 @@ var chartClients = {
 };
 
 var xml = {
-    "ROYER_clause ii": "FRAN_IR_041106.xml",
+    "ROYERclaude ii": "FRAN_IR_041106.xml",
     "FOURCHYandré": "FRAN_IR_042380.xml",
-    "DESCHAMBEAXjean-joseph": "FRAN_IR_042517.xml",
-    "LE CLERCmarc-joseph": "FRAN_IR_042602.xml",
-    "GIRET DE VALVILLEandré-nicolas": "FRAN_IR_0426811.xml",
+    "DESCHAMBEAUXjean-joseph": "FRAN_IR_042517.xml",
+    "LE CLERCmarc": "FRAN_IR_042602.xml",
+    "GIRET DE VALVILLEandré-nicolas": "FRAN_IR_042811.xml",
     "MILLON-DAILLYaugustin": "FRAN_IR_043245.xml"
 };
 
@@ -277,6 +276,8 @@ var cbbutton = "<div class=\"chatbox\" id=\"scroll_back\">\n" +
     "        \n" +
     "    </div>";
 
+
+var Lmap = Map;
 
 
 function SIVEnhance(){
@@ -458,7 +459,7 @@ function SIVEnhance(){
             if (cotePattern.test(document.location.search)){
                 document.querySelector('.column_column').innerHTML = hanFormRepro;
 
-                var datePattern = /date=([0-9]{4}-[0-9]{2}-[0-9]{2})&?/
+                var datePattern = /date=([0-9]{4}-[0-9]{2}-[0-9]{2})&?/;
 
                 var qdate = document.location.search.split(datePattern)[1];
                 var drop = null;
@@ -635,11 +636,31 @@ function SIVEnhance(){
                     {
                         classList: ['chartBlock'],
                         children:[
-                            {classList: ['description-section', 'description-section-content-structure', 'nohighlight'], children: [
-                                {name: "h2", attributes:{style: "margin-top: 1rem;"}, classList:["description-section-title"], properties: {textContent: "Localisation de l'étude et des personnes citées dans les actes"}}
-                            ]},
-                            {name: 'iframe', attributes:{width: "100%", height: "600px;", frameBorder: "0", allowfullscreen: "", src: umapURL[key]}
-                            }]}
+                            {
+                                classList: ['description-section', 'description-section-content-structure', 'nohighlight'],
+                                children: [
+                                    {name: "h2", attributes:{style: "margin-top: 1rem;"}, classList:["description-section-title"], properties: {textContent: "Localisation de l'étude et des personnes citées dans les actes"}}
+                                ]
+                            }, {
+                                name: 'iframe', attributes:{
+                                    width: "100%", height: "600px;", frameBorder: "0", allowfullscreen: ""/*, src: umapURL[key],*/
+                                }, functions: [{
+                                    function: function () {
+                                        console.log(this);
+                                        this.src = 'https://hackhan.neoblaster.fr/map.php?file=' + xml[key];
+                                    }
+                                }]
+                            }
+                            // {
+                            //     attributes:{style: "width: 100%; height: 600px;"},
+                            //     functions: [{
+                            //         function: function() {
+                            //             new Lmap().target(this).make();
+                            //         }
+                            //     }]
+                            // }
+                        ]
+                    }
                 ]
             }));
         } else {
@@ -827,7 +848,7 @@ document.head.appendChild(new HTML().compose({
     name: "link", attributes: {href: "https://rawcdn.githack.com/UneMinuteAgo/lib/cdb7b1225a8420d8d9388dcff596a207f0d585e9/src/dialogBox.css", type: "text/css", rel: "stylesheet"}
 }));
 document.head.appendChild(new HTML().compose({
-    name: "link", attributes: {href: "https://unpkg.com/leaflet@1.3.4/dist/leaflet.css", type: "text/css", rel: "stylesheet"}
+    name: "link", attributes: {href: "https://unpkg.com/leaflet@1.0.3/dist/leaflet.css", type: "text/css", rel: "stylesheet"}
 }));
 
 new SIVEnhance().init();
